@@ -1,0 +1,1 @@
+ACTION_LIST = ['R', 'W', 'C', 'O']
