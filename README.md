@@ -4,9 +4,13 @@
 ## CC Protocols
 
 ### Two-Phase Locking (2PL)
+
 ### Optimistic Concurrency Control (OCC)
 Using serial validation based OCC without threading.
+
 ### Multiversion Timestamp Ordering Concurrency Control (MVCC)
+
+
 
 ## How to Run
 
@@ -21,7 +25,7 @@ Test file structure
 
 | Action | Transaction | Resource |
 |-|-|-|
-|R(Read), W(Write), C(Commit)|transaction number (e.g. 1, 22, 30)|alphabatic (A-Za-z) characters (e.g. A, AA, aB) or  assignment operation (e.g. A=5, B=9)| 
+|R(Read), W(Write), C(Commit)|transaction number (e.g. 1, 22, 30)|alphabetic (A-Za-z) characters (e.g. A, AA, aB) or  assignment operation (e.g. A=5, B=9)| 
 
  > P.S. The default value of the resource is 0 
 
