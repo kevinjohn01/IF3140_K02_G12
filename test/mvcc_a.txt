@@ -1,0 +1,17 @@
+R 5 X
+R 2 Y
+R 1 Y
+W 3 Y=4
+W 3 Z=5
+R 5 Z
+R 2 Z
+R 1 X
+R 4 W
+W 3 W
+W 5 Y=8
+W 5 Z=9
+C 1
+C 2
+C 3
+C 4
+C 5
