@@ -10,22 +10,33 @@ class MultiversionTimestampOrderingCC:
         self.tx_recent_operation: Dict[str, List[List[str]]] = {}
         self.reads: Set[Tuple[str, str]] = set()
         self.final_schedule: List[str] = []
+        self.tx_commited: List[str] = []
+        self.aborted: bool = False
 
     def run(self) -> None:
         print()
         self.__process_operation(self.operations, False)
-        print()
-        print('[✅] final schedule: ', end='')
-        for _, operation in enumerate(self.final_schedule):
-            print(operation, end=' ')
-        print()
+        if not self.aborted:
+            print()
+            print('[✅] final schedule: ', end='')
+            for _, operation in enumerate(self.final_schedule):
+                print(operation, end=' ')
+            print()
 
     def __process_operation(self, operations: List[List[str]], rolled_back: bool):
         for _, operation in enumerate(operations):
+            if self.aborted:
+                break
+
             time.sleep(1e-7)
 
             action = operation[0]
             tx = operation[1]
+
+            if tx in self.tx_commited:
+                print("[❗] invalid operation on input. aborting.")
+                self.aborted = True
+                break
 
             if not self.tx_ts_start.get(tx) or rolled_back:
                 self.tx_ts_start[tx] = time.time()
@@ -108,6 +119,8 @@ class MultiversionTimestampOrderingCC:
                     print(f'[✨] [TX-{tx}] [COMMIT]')
 
                     self.final_schedule.append(f'C{tx}')
+
+                    self.tx_commited.append(tx)
 
     def __rollback(self, tx: str) -> None:
         rolled_back_txs = self.__get_rolled_back_transaction(tx)

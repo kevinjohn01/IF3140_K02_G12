@@ -1,0 +1,8 @@
+R 1 A
+W 1 B
+R 2 B
+C 1
+W 2 B
+C 2
+R 3 B
+C 3

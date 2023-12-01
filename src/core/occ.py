@@ -12,17 +12,12 @@ class OptimisticCC:
         self.tx_read: Dict[str, set[str]] = {}
         self.tx_resource: Dict[str, Dict[str, str]] = {}
         self.final_schedule: List[str] = []
+        self.aborted: bool = False
 
     def run(self) -> None:
         print()
         for _, operation in enumerate(self.operations):
             time.sleep(1e-7)
-            # log
-            # print('tx_timestamp', self.tx_timestamp)
-            # print('tx_written', self.tx_written)
-            # print('tx_read', self.tx_read)
-            # print('tx_resource', self.tx_resource)
-            # print()
 
             action = operation[0]
             tx = operation[1]
@@ -34,6 +29,7 @@ class OptimisticCC:
 
             if abs(self.tx_timestamp[tx]["end"] - sys.maxsize) > 1e-9:
                 print("[❗] invalid operation on input. aborting.")
+                self.aborted = True
                 break
 
             if not self.tx_resource.get(tx):
@@ -98,19 +94,13 @@ class OptimisticCC:
 
                     self.tx_timestamp[tx]["end"] = time.time()
 
-        # log
-        # print('tx_timestamp', self.tx_timestamp)
-        # print('tx_written', self.tx_written)
-        # print('tx_read', self.tx_read)
-        # print('tx_resource', self.tx_resource)
-        # print()
-
         # print final schedule
-        print()
-        print('[✅] final schedule: ', end='')
-        for i, operation in enumerate(self.final_schedule):
-            print(f'{operation}', end=' ')
-        print()
+        if not self.aborted:
+            print()
+            print('[✅] final schedule: ', end='')
+            for i, operation in enumerate(self.final_schedule):
+                print(f'{operation}', end=' ')
+            print()
 
     def __validate(self, tx: str) -> bool:
         for timestamp_tx, timestamp_tx_value in self.tx_timestamp.items():
