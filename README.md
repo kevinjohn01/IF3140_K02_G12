@@ -19,18 +19,18 @@ Move to the src dir and run the following command,
 
 Test file structure
 
-| Action | Transaction | Resource | Operation |
-|-|-|-|-|
-|R(Read), W(Write), C(Commit), O(Operation)|transaction number (e.g. 1, 22, 30)|A, B, C|set resource to a specific numberic value (e.g. A=5, B=9)|
+| Action | Transaction | Resource |
+|-|-|-|
+|R(Read), W(Write), C(Commit)|transaction number (e.g. 1, 22, 30)|alphabatic (A-Za-z) characters (e.g. A, AA, aB) or  assignment operation (e.g. A=5, B=9)| 
 
  > P.S. The default value of the resource is 0 
 
 Example:
 ```
 R 1 B
-O 1 B=3 // make sure to not adding extra space between characters on the operation
+W 1 B=3 // make sure to not adding extra space between characters on the operation
 R 2 A
-O 2 A=3
+W 2 A=3
 R 2 B
 W 1 B
 W 2 A

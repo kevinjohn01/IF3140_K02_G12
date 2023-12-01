@@ -10,7 +10,7 @@ class InputParser:
     def __init__(self) -> None:
         self.file_name: str = ''
         self.file: TextIOWrapper
-        self.data: List[List[str]] = []
+        self.operations: List[List[str]] = []
         self.cc_option: int
 
     def read_cc_option(self) -> int:
@@ -47,6 +47,7 @@ class InputParser:
                     valid, line, message = self.__validate_file()
                     if not valid:
                         raise InvalidFileInputFormat(line, message)
+                    self.__extract()
                 break
             except IsADirectoryError:
                 print(f'[❗] {self.file_name} not found. provide another file')
@@ -55,13 +56,13 @@ class InputParser:
             except InvalidFileInputFormat as e:
                 print(f'[❗] {e.error}')
 
-        return self.data
+        return self.operations
 
     def __validate_file(self) -> Tuple[bool, int, str]:
-        if len(self.data) == 0:
+        if len(self.operations) == 0:
             return (False, 1, 'no content')
 
-        for i, line in enumerate(self.data):
+        for i, line in enumerate(self.operations):
             if len(line) < 2 or len(line) > 3:
                 return (False, i + 1, 'invalid structure')
             if line[0] not in ACTION_LIST:
@@ -84,4 +85,11 @@ class InputParser:
         if self.file:
             lines = self.file.read().splitlines()
             for line in lines:
-                self.data.append(line.strip().split(' '))
+                self.operations.append(line.strip().split(' '))
+
+    def __extract(self) -> None:
+        for i, operation in enumerate(self.operations):
+            if operation[0] == 'W' and '=' in operation[2]:
+                operation.append(operation[2].split('=')[1])
+            elif operation[0] == 'W':
+                operation.append('0')
