@@ -74,7 +74,7 @@ class InputParser:
             if not re.fullmatch(r"^(?![0])[0-9]+$", line[1]):
                 return (False, i + 1, 'invalid transaction name')
             if len(line) > 2:
-                if line[0] == 'W' and not re.fullmatch(r"^([A-Za-z]+=[0-9]+)|([A-Za-z])+$", line[2]):
+                if line[0] == 'W' and not re.fullmatch(r"^([A-Za-z]+=[-]?[0-9]+)|([A-Za-z])+$", line[2]):
                     return (False, i + 1, 'invalid resource name')
                 if line[0] != 'W' and not re.fullmatch(r"^[A-Za-z]+$", line[2]):
                     return (False, i + 1, 'invalid operation structure')
@@ -91,5 +91,6 @@ class InputParser:
         for i, operation in enumerate(self.operations):
             if operation[0] == 'W' and '=' in operation[2]:
                 operation.append(operation[2].split('=')[1])
+                operation[2] = operation[2].split('=')[0]
             elif operation[0] == 'W':
                 operation.append('0')
