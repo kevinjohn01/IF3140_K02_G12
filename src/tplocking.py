@@ -282,9 +282,9 @@ class TPLocking:
         for op in self.data:
             try:
                 if(len(op) > 2):
-                    print(f"[!] Currently working on {op[0]}{op[1:-3]}({op[-2]})")
+                    print(f"[!] Currently working on {op[0]}{op[1]}({op[2]})")
                 else:
-                    print(f"[!] Currently working on {op[0]}{op[1:]}")
+                    print(f"[!] Currently working on {op[0]}{op[1]}")
                 self.checkQueue()
                 if (len(op) == 2):
                     trx = self.lookForTrx(op[1])
