@@ -18,8 +18,6 @@ class Transaction:
         if (len(self.lock) != 0):
             i = 0
             while i<len(self.lock):
-                print("i=", i)
-                print("len=", len(self.lock))
                 if self.lock[i][0] == data_item:
                     self.lock = self.lock[0:i-1] + self.lock[i+1:len(self.lock)]
                 i += 1
