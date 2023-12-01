@@ -93,7 +93,7 @@ class TPLocking:
             transaction.assign_lock(data_item,'X')
             transaction.addOperationList('X', data_item)
             self.schedule.append(['X',transaction.transaction_id,data_item])
-            self.description.append(f"Exclusive lock granted to T{transaction.transaction_id} on data item {data_item}")
+            self.description.append(f"Lock for data item {data_item} upgraded. Exclusive lock granted to T{transaction.transaction_id} on data item {data_item}")
             self.state = 'running'
             return True
         #Other
@@ -261,13 +261,30 @@ class TPLocking:
             newdata.append(newdatum)
         self.data = newdata
 
+    def parse(self, data):
+        newdata = []
+        for x in data:
+            if (x[len(x)-1] == ")"):
+                data_item = x[-3:][1]
+                ops = x[0]
+                id_transaction = x[1:-3]
+                newdata.append([ops,id_transaction,data_item])
+            else:
+                ops = x[0]
+                id_transaction = x[1:]
+                newdata.append([ops,id_transaction])
+        self.data = newdata
+
     def run(self):
         curr_timestamp = 1
-        if(len(self.data[0]) != 5 and len(self.data[0]) != 2):
-            self.manageData()
+        # if(len(self.data[0]) == 5 and len(self.data[0]) != 2):
+        #     self.manageData()
         for op in self.data:
             try:
-                print(f"[!] Currently working on {op}")
+                if(len(op) > 2):
+                    print(f"[!] Currently working on {op[0]}{op[1:-3]}({op[-2]})")
+                else:
+                    print(f"[!] Currently working on {op[0]}{op[1:]}")
                 self.checkQueue()
                 if (len(op) == 2):
                     trx = self.lookForTrx(op[1])
@@ -278,7 +295,7 @@ class TPLocking:
                     else:
                         print("Operation invalid!")
 
-                elif(len(op) == 5):
+                elif(len(op) > 2):
                     #Initialize
                     ops = op[0]
                     trx = self.lookForTrx(op[1])
@@ -286,9 +303,9 @@ class TPLocking:
                         trx = Transaction(op[1], curr_timestamp)
                         curr_timestamp += 1
                         self.transactions.append(trx)
-                    data = op[3]
+                    data = op[2]
                     #Classified which action will be taken
-                    self.schedule.append([ops,op[1],op[3]])
+                    self.schedule.append([ops,op[1],data])
                     self.description.append("")
                     status = self.lock(trx,data,ops)
 
@@ -343,7 +360,7 @@ if __name__ == '__main__':
     ccm = TPLocking([])
     seq = input("Type the sequence: ")
     seq_filtered = seq.replace(" ","").split(";")
-    ccm.data = seq_filtered
+    ccm.parse(seq_filtered)
     ccm.run()
     # print(ccm.transactions)
     # print(ccm.queue)
