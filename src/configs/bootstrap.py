@@ -1,6 +1,6 @@
 from core.occ import OptimisticCC
 from utils.input_parser import InputParser
-
+from tplocking import TPLocking
 
 class Bootstrap:
     def __init__(self) -> None:
@@ -12,6 +12,8 @@ class Bootstrap:
         match cc_option:
             case 1:
                 # TODO: 2PL
+                twopl = TPLocking(data)
+                twopl.run()
                 pass
             case 2:
                 occ = OptimisticCC(data)
