@@ -1,11 +1,9 @@
 from io import TextIOWrapper
-from multiprocessing import Value
 import re
 from typing import List, Tuple
 
-from configs.common import CC_OPTIONS, ROOT_DIR
+from configs.common import ACTION_LIST, CC_OPTIONS, ROOT_DIR
 from configs.error import InvalidCCChoice, InvalidFileInputFormat
-from configs.schedule import ACTION_LIST
 
 
 class InputParser:
@@ -75,9 +73,9 @@ class InputParser:
             if not re.fullmatch(r"^(?![0])[0-9]+$", line[1]):
                 return (False, i + 1, 'invalid transaction name')
             if len(line) > 2:
-                if line[0] == 'O' and not re.fullmatch(r"^[A-Za-z]+=[0-9]+$", line[2]):
+                if line[0] == 'W' and not re.fullmatch(r"^([A-Za-z]+=[0-9]+)|([A-Za-z])+$", line[2]):
                     return (False, i + 1, 'invalid resource name')
-                if line[0] != 'O' and not re.fullmatch(r"^[A-Za-z]+$", line[2]):
+                if line[0] != 'W' and not re.fullmatch(r"^[A-Za-z]+$", line[2]):
                     return (False, i + 1, 'invalid operation structure')
 
         return (True, -1, '')

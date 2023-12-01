@@ -6,3 +6,4 @@ CC_OPTIONS = {
     2: 'Optimistic Concurrency Control (OCC)',
     3: 'Multiversion Timestampt Ordering Concurrency Control (MVCC)'
 }
+ACTION_LIST = ['R', 'W', 'C']
