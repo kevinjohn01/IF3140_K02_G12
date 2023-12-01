@@ -1,15 +1,13 @@
 # IF3140_K02_G12
 
 
-## CC Protocols
+## CC Protocols Checklist
 
-### Two-Phase Locking (2PL)
+### Two-Phase Locking (2PL) ✅
 
-### Optimistic Concurrency Control (OCC)
-Using serial validation based OCC without threading.
+### Optimistic Concurrency Control (OCC) ✅
 
-### Multiversion Timestamp Ordering Concurrency Control (MVCC)
-
+### Multiversion Timestamp Ordering Concurrency Control (MVCC) ✅
 
 
 ## How to Run
@@ -19,7 +17,7 @@ Move to the src dir and run the following command,
 {py|python|python3} main.py
 ```
 
-## Test
+## Testing
 
 Test file structure
 

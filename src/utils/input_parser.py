@@ -41,7 +41,8 @@ class InputParser:
         while True:
             try:
                 print()
-                self.file_name = input('[🚀] input file name: ').strip()
+                self.file_name = input(
+                    '[🚀] input file name (from `test` folder): ').strip()
                 with open(f'{ROOT_DIR}/test/{self.file_name}', 'r') as self.file:
                     self.__parse()
                     valid, line, message = self.__validate_file()
