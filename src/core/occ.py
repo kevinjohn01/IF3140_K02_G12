@@ -15,7 +15,7 @@ class OptimisticCC:
 
     def run(self) -> None:
         print()
-        for i, operation in enumerate(self.operations):
+        for _, operation in enumerate(self.operations):
             time.sleep(1e-7)
             # log
             # print('tx_timestamp', self.tx_timestamp)

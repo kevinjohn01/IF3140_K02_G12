@@ -1,6 +1,8 @@
+from core.mvcc import MultiversionTimestampOrderingCC
 from core.occ import OptimisticCC
 from utils.input_parser import InputParser
 from tplocking import TPLocking
+
 
 class Bootstrap:
     def __init__(self) -> None:
@@ -11,7 +13,6 @@ class Bootstrap:
 
         match cc_option:
             case 1:
-                # TODO: 2PL
                 twopl = TPLocking(data)
                 twopl.run()
                 pass
@@ -20,5 +21,6 @@ class Bootstrap:
                 occ.run()
                 pass
             case 3:
-                # TODO: MVCC
+                mvcc = MultiversionTimestampOrderingCC(data)
+                mvcc.run()
                 pass
