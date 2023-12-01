@@ -21,7 +21,7 @@ class Transaction:
                 i += 1
 
     def addOperationList(self,operation, data_item) -> None:
-        print(f"Operasi T{self.transaction_id} {operation} pada {data_item} berhasil ditambahkan")
+        # print(f"Operasi T{self.transaction_id} {operation} pada {data_item} berhasil ditambahkan")
         self.OperationList.append([operation,data_item])
 
     def getOperation(self):

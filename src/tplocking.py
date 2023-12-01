@@ -85,7 +85,7 @@ class TPLocking:
 
         #Upgrade Lock
         elif (data['state'] == 'shared' and len(data['transactions']) == 1 and next(iter(data['transactions'])) == transaction.transaction_id):
-            print(f"[!] lock {data_item} upgraded to exclusive lock")
+            print(f"[!] T{transaction.transaction.id} lock on {data_item} has been upgraded to exclusive lock")
             transaction.state = 'running'
             data['state'] = 'exclusive'
 
@@ -121,7 +121,7 @@ class TPLocking:
             #Cannot commit since operation is not completed
             self.queue.append(['C',transaction])
         else:
-            print(f"Transaction {transaction.transaction_id} commited")
+            print(f"[!] T{transaction.transaction_id} commited")
 
             #Commit transaction
             transaction.state = 'commited'
@@ -135,7 +135,7 @@ class TPLocking:
 
     def abort(self, transaction: Transaction) -> None:
         #transaction aborted
-        print(f"Transaction {transaction.transaction_id} aborted")
+        print(f"[!] T{transaction.transaction_id} aborted")
         transaction.state = 'aborted'
         self.state = 'rollback'
 
@@ -235,54 +235,72 @@ class TPLocking:
         schedule = ""
         for sch in self.schedule:
             if(len(sch) == 2):
-                print(f"{sch[0]}{sch[1]}")
+                # print(f"{sch[0]}{sch[1]}")
                 schedule += f"{sch[0]}{sch[1]};"
             elif (len(sch) == 3):
                 if (sch[0] == 'S' or sch[0] == 'X'):
-                    print(f"Lock-{sch[0]}{sch[1]}({sch[2]})")
+                    # print(f"Lock-{sch[0]}{sch[1]}({sch[2]})")
                     schedule += f"Lock-{sch[0]}{sch[1]}({sch[2]});"
                 else:
-                    print(f"{sch[0]}{sch[1]}({sch[2]})")
+                    # print(f"{sch[0]}{sch[1]}({sch[2]})")
                     schedule += f"{sch[0]}{sch[1]}({sch[2]});"
         return schedule
+    
+    def manageData(self):
+        data = self.data
+        newdata = []
+        for datum in data:
+            newdatum = ""
+            op = datum[0]
+            transaction_id = datum[1]
+            if (len(datum) > 2):
+                data_item= datum[2]
+                newdatum = f"{op}{transaction_id}({data_item})"
+            else:
+                newdatum = f"{op}{transaction_id}"
+            newdata.append(newdatum)
+        self.data = newdata
 
     def run(self):
         curr_timestamp = 1
+        if(len(self.data[0]) != 5 and len(self.data[0]) != 2):
+            self.manageData()
         for op in self.data:
-            # try:
-            print(op)
-            #self.checkQueue()
+            try:
+                print(f"[!] Currently working on {op}")
+                self.checkQueue()
+                if (len(op) == 2):
+                    trx = self.lookForTrx(op[1])
+                    if (trx == None):
+                        raise Exception("[!] Unknown transaction request to be commited")
+                    if (op[0] == 'C'):
+                        self.commit(trx)
+                    else:
+                        print("Operation invalid!")
 
-            if (len(op) == 2):
-                trx = self.lookForTrx(op[1])
-                if (trx == None):
-                    raise Exception("Unknown transaction request to be commited")
-                if (op[0] == 'C'):
-                    self.commit(trx)
-                else:
-                    print("Operation invalid!")
-                
-            elif(len(op) == 5):
-                #Initialize
-                ops = op[0]
-                trx = self.lookForTrx(op[1])
-                if trx==None:
-                    trx = Transaction(op[1], curr_timestamp)
-                    curr_timestamp += 1
-                    self.transactions.append(trx)
-                data = op[3]
-                #Classified which action will be taken
-                self.schedule.append([ops,op[1],op[3]])
-                self.description.append("")
-                status = self.lock(trx,data,ops)
-                
+                elif(len(op) == 5):
+                    #Initialize
+                    ops = op[0]
+                    trx = self.lookForTrx(op[1])
+                    if trx==None:
+                        trx = Transaction(op[1], curr_timestamp)
+                        curr_timestamp += 1
+                        self.transactions.append(trx)
+                    data = op[3]
+                    #Classified which action will be taken
+                    self.schedule.append([ops,op[1],op[3]])
+                    self.description.append("")
+                    status = self.lock(trx,data,ops)
+
             # print(f"queue: {self.queue}")
-            # except Exception as e:
-            #     print(e)
-            #     continue
+            except Exception as e:
+                print(e)
+                continue
         # print(self.queue)
         self.checkQueue()
         self.checkQueue()
+        print(self)
+        print(f"Final schedule: {self.printSchedule()}")
 
     def scheduleToString(self,sch) -> str:
         result = ""
@@ -329,5 +347,4 @@ if __name__ == '__main__':
     ccm.run()
     # print(ccm.transactions)
     # print(ccm.queue)
-    print(ccm)
     #print(ccm.printSchedule())
