@@ -1,15 +1,13 @@
-curr_timestamp = 1
 from collections import deque
 
 class Transaction:
-    def __init__(self,transaction_id: int, timestamp: int = curr_timestamp) -> None:
+    def __init__(self,transaction_id: int, timestamp: int) -> None:
         global curr_timestamp
         self.transaction_id = transaction_id
         self.lock = []
         self.timestamp = timestamp
         self.state = None
         self.OperationList = deque()
-        curr_timestamp += 1
 
     def assign_lock(self,data_item,type) -> None:
         self.lock.append([data_item,type])
@@ -33,4 +31,4 @@ class Transaction:
         self.OperationList.appendLeft([operation,data_item])
 
     def __repr__(self) -> str:
-        return f"transaction_id: {self.transaction_id}\nlock: {self.lock}"
+        return f"transaction_id: {self.transaction_id}\nlock: {self.lock}\ntimestamp: {self.timestamp}"

@@ -105,11 +105,13 @@ class TPLocking:
                 return False
             #Deadlock handling with wait-die mechanism
             if self.waitdie(transaction, self.getHoldingTransaction(data_item)):
+                #self.description[len(self.description)-1] += f"T{transaction.transaction_id} should be waiting for T{self.getHoldingTransaction(data_item)}"
                 transaction.state = 'waiting'
                 self.queue.append(['X',transaction,data_item])
-            else:
-                self.abort(transaction)
                 
+            else:
+                # self.description[len(self.description)-1] += f"T{transaction.transaction_id} cannot lock {data_item}, {data_item} hold by T{self.lockTable[data_item]['transactions'].__str__()[2]}"
+                self.abort(transaction)
                 self.exclusive_lock(transaction, data_item)
             self.state = 'running'
             return False
@@ -139,10 +141,12 @@ class TPLocking:
 
         # print(transaction.state)
         self.schedule.append(['A',transaction.transaction_id])
-        self.description.append(f"T{transaction.transaction_id} aborted")
+        self.description.append(f"T{transaction.transaction_id} aborted, rollback")
         #Unlock data item hold by transaction
-        for i in range (len(transaction.lock)):
+        i = 0
+        while i < (len(transaction.lock)):
             self.unlock(transaction,transaction.lock[i][0])
+            i += 1
         
         #Jalankan ulang transaksi
         self.rerun_transaction(transaction)
@@ -153,7 +157,7 @@ class TPLocking:
             self.queue.append([op[0],transaction,op[1]])
             # print(transaction.OperationList)
             # print(f"queue setelah abort:{self.queue}")
-        #self.checkQueue()
+        # self.checkQueue()
         # print("-------------------------------SELESAI-----------------------------------------")
 
     def unlock(self, transaction: Transaction,data_item) :
@@ -177,7 +181,7 @@ class TPLocking:
             #transaction.addOperationList('UL', data_item)
 
     def waitdie(self, younger_transaction: Transaction, older_transaction_id):
-        return older_transaction_id is not None and younger_transaction.transaction_id < older_transaction_id
+        return self.lookForTrx(older_transaction_id) is not None and younger_transaction.timestamp < self.lookForTrx(older_transaction_id).timestamp
     
     def getHoldingTransaction(self,data_item) -> str:
         return next(iter(self.lockTable[data_item]['transactions']), None)
@@ -186,7 +190,7 @@ class TPLocking:
         # print(f"--------------MENJALANKAN QUEUE ------------------------")
         self.state = 'queue'
         if (len(self.queue) != 0):
-            stop =False
+            stop = False
             while not(stop) and len(self.queue) != 0:
                 curr_ops = self.queue.popleft()
                 type = curr_ops[0]
@@ -228,16 +232,22 @@ class TPLocking:
             raise Exception("Operation invalid!")
     
     def printSchedule(self):
+        schedule = ""
         for sch in self.schedule:
             if(len(sch) == 2):
                 print(f"{sch[0]}{sch[1]}")
+                schedule += f"{sch[0]}{sch[1]};"
             elif (len(sch) == 3):
                 if (sch[0] == 'S' or sch[0] == 'X'):
                     print(f"Lock-{sch[0]}{sch[1]}({sch[2]})")
+                    schedule += f"Lock-{sch[0]}{sch[1]}({sch[2]});"
                 else:
                     print(f"{sch[0]}{sch[1]}({sch[2]})")
+                    schedule += f"{sch[0]}{sch[1]}({sch[2]});"
+        return schedule
 
     def run(self):
+        curr_timestamp = 1
         for op in self.data:
             # try:
             print(op)
@@ -257,7 +267,8 @@ class TPLocking:
                 ops = op[0]
                 trx = self.lookForTrx(op[1])
                 if trx==None:
-                    trx = Transaction(op[1])
+                    trx = Transaction(op[1], curr_timestamp)
+                    curr_timestamp += 1
                     self.transactions.append(trx)
                 data = op[3]
                 #Classified which action will be taken
@@ -291,7 +302,7 @@ class TPLocking:
         schedule = ""
         for i in range (len(self.transactions)):
             schedule += " "*6 + "T" + str(self.transactions[i].transaction_id) + " "*6 + "|" 
-        schedule += " Keterangan"
+        schedule += " Description"
         schedule += "\n" + "-"*((len(self.transactions)*size)+sizeDesc) + "\n"
 
         for i in range (len(self.schedule)):
@@ -316,5 +327,7 @@ if __name__ == '__main__':
     seq_filtered = seq.replace(" ","").split(";")
     ccm.data = seq_filtered
     ccm.run()
-    # print(ccm.schedule)
+    # print(ccm.transactions)
+    # print(ccm.queue)
     print(ccm)
+    #print(ccm.printSchedule())
