@@ -85,7 +85,7 @@ class TPLocking:
 
         #Upgrade Lock
         elif (data['state'] == 'shared' and len(data['transactions']) == 1 and next(iter(data['transactions'])) == transaction.transaction_id):
-            print(f"[!] T{transaction.transaction.id} lock on {data_item} has been upgraded to exclusive lock")
+            print(f"[!] T{transaction.transaction_id} lock on {data_item} has been upgraded to exclusive lock")
             transaction.state = 'running'
             data['state'] = 'exclusive'
 
@@ -285,7 +285,7 @@ class TPLocking:
                     print(f"[!] Currently working on {op[0]}{op[1]}({op[2]})")
                 else:
                     print(f"[!] Currently working on {op[0]}{op[1]}")
-                self.checkQueue()
+                # self.checkQueue()
                 if (len(op) == 2):
                     trx = self.lookForTrx(op[1])
                     if (trx == None):
